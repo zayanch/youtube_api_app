@@ -1,5 +1,5 @@
 const videoContainer = document.getElementById('video-container');
-var maxRes
+
 
 function request() {
     var key = document.getElementById('key-input').value; //AIzaSyAnr5MWnFK9UvBfU-McUbvE9hgG0hx7v_w
