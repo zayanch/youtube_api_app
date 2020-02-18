@@ -1,57 +1,26 @@
-const CLIENT_ID = '219689873354-f55b611p8q82bfvalsdur2k1t8ev69b1.apps.googleusercontent.com';
-const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest"];
-const SCOPES = 'https://www.googleapis.com/auth/youtube.readonly';
-
-const authorizeButton = document.getElementById('authorize-button');
-const signoutButton = document.getElementById('signout-button');
-const content = document.getElementById('content');
-const channelForm = document.getElementById('channel-form');
-const channelInput = document.getElementById('channel-input');
 const videoContainer = document.getElementById('video-container');
+var maxRes
 
-const defaultChannel='techguyweb';
+function request() {
+    var key = document.getElementById('key-input').value; //AIzaSyAnr5MWnFK9UvBfU-McUbvE9hgG0hx7v_w
+    var channelId = document.getElementById('channelId-input').value; //UCX0HdX_itqWkhvbK839lQkQ
 
-function handleClientLoad() {
-    gapi.load('client:auth2', initClient);
-
-}
-
-function initClient() {
-    gapi.client.init({
-        discoveryDocs: DISCOVERY_DOCS,
-        clientId: CLIENT_ID,
-        scope: SCOPES
-    }).then(() => {
-        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-        authorizeButton.onclick = handleAuthClick;
-        signoutButton.onclick = handleSignoutClick;
-    });
-}
-
-function updateSigninStatus(isSignIn) {
-    if (isSignIn) {
-        authorizeButton.style.display = 'none';
-        signoutButton.style.display = 'block';
-        content.style.display = 'block';
-        videoContainer.style.display = 'block';
-        getChannel(defaultChannel);
-    } else {
-        authorizeButton.style.display = 'block';
-        signoutButton.style.display = 'none';
-        content.style.display = 'none';
-        videoContainer.style.display = 'none';
-    }
-}
-
-function handleAuthClick() {
-    gapi.auth2.getAuthInstance().signIn();
-}
-
-function handleSignoutClick() {
-    gapi.auth2.getAuthInstance().signOut();
-}
-
-function getChannel(channel){
-    console.log(channel);
+    var httpsRequest = new XMLHttpRequest();
+    httpsRequest.open(
+        'GET',
+        `https://www.googleapis.com/youtube/v3/search?key=${key}&channelId=${channelId}&part=snippet,id&order=date&maxResults=50&&order=date`
+    );
+    httpsRequest.onreadystatechange = () => {
+        if (httpsRequest.readyState === 4 && httpsRequest.status === 200) {
+            var response = JSON.parse(httpsRequest.responseText);
+            var iframe = '';
+            response.items.forEach(element => {
+                iframe +=
+                    `<iframe src ="https://www.youtube.com/embed/${element.id.videoId}" width="300" height="200" frameBorder="0" allowfullscreen style='margin:0.75rem 0.75rem'></iframe>`;
+            });
+            videoContainer.innerHTML = iframe;
+        }
+    };
+    httpsRequest.send();
+    return false;
 }
